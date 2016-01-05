@@ -100,6 +100,19 @@ class OneLogin_Saml2_Authn_Request(object):
         if 'attributeConsumingService' in sp_data and sp_data['attributeConsumingService']:
             attr_consuming_service_str = 'AttributeConsumingServiceIndex="1"'
 
+        scoping_str = ''
+        if 'scopingIdpList' in sp_data:
+            scoping_idp_str = ''
+            for idp in sp_data['scopingIdpList']:
+                scoping_idp_str += '            <samlp:IDPEntry ProviderID="%s" />' % idp
+
+            scoping_str = '''\
+    <samlp:Scoping>
+        <samlp:IDPList>
+            %s
+        </samlp:IDPList>
+    </samlp:Scoping>''' % scoping_idp_str
+
         request = """<samlp:AuthnRequest
     xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
     xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
@@ -111,6 +124,7 @@ class OneLogin_Saml2_Authn_Request(object):
     AssertionConsumerServiceURL="%(assertion_url)s"
     %(attr_consuming_service_str)s>
     <saml:Issuer>%(entity_id)s</saml:Issuer>%(nameid_policy_str)s%(requested_authn_context_str)s
+%(scoping_str)s
 </samlp:AuthnRequest>""" % \
             {
                 'id': uid,
@@ -123,6 +137,7 @@ class OneLogin_Saml2_Authn_Request(object):
                 'entity_id': sp_data['entityId'],
                 'nameid_policy_str': nameid_policy_str,
                 'requested_authn_context_str': requested_authn_context_str,
+                'scoping_str': scoping_str,
                 'attr_consuming_service_str': attr_consuming_service_str
             }
 
