@@ -298,6 +298,9 @@ class OneLogin_Saml2_Utils(object):
             elif protocol == 'https' and port_number == '443':
                 port = ''
 
+            # disable the port part. Causes issues when using a reversy_proxy server bound to a local port.
+            port = ''
+
         return '%s://%s%s' % (protocol, current_host, port)
 
     @staticmethod
